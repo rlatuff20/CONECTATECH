@@ -79,7 +79,7 @@
                 password: document.getElementById('login-password').value
             };
 
-            fetch('https://tienda-pro-muyy.onrender.com/login' {
+            fetch('https://tienda-pro-muyy.onrender.com/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(datosLogin)
