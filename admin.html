@@ -47,14 +47,14 @@
         <p style="color: gray;">Fichajes y actualizaciones en tiempo real.</p>
         
 <form id="form-nuevo-producto" class="input-group">
-    <input type="text" id="nuevo-nombre" placeholder="Nombre" required>
-    <input type="text" id="nueva-categoria" placeholder="Categoría" required>
-    <input type="number" id="nuevo-precio" placeholder="Precio" step="0.01" required>
-    <input type="text" id="nueva-img" placeholder="Nombre de la foto" required>
-    <input type="number" id="nuevo-stock" placeholder="Cantidad en Stock" required>
-    <input type="text" id="nuevas-features" placeholder="Características (separadas por coma)" required>
-    <button type="submit" class="btn btn-save">➕ Guardar Nuevo Fichaje</button>
-</form>
+    <input type="text" id="nuevo-nombre" name="nuevo-nombre" placeholder="Nombre" required>
+    <input type="text" id="nueva-categoria" name="nueva-categoria" placeholder="Categoría" required>
+    <input type="number" id="nuevo-precio" name="nuevo-precio" placeholder="Precio" step="0.01" required>
+    <input type="text" id="nueva-img" name="nueva-img" placeholder="Nombre de la foto" required>
+    <input type="number" id="nuevo-stock" name="nuevo-stock" placeholder="Stock" required>
+    <input type="text" id="nuevas-features" name="nuevas-features" placeholder="Características (a, b, c)" required>
+     </form>
+         <button type="submit" id="btn-guardar" class="btn btn-save">➕ Guardar Nuevo Fichaje</button>
         <button onclick="cerrarSesion()" class="btn btn-logout" style="width: 100%;">🔒 Cerrar Sesión</button>
     </div>
 
