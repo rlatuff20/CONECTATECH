@@ -24,7 +24,28 @@ const productoSchema = new mongoose.Schema({
 });
 const Producto = mongoose.model('Producto', productoSchema);
 
+// TUS CREDENCIALES DE ACCESO
+const usuariosAdministradores = [
+    { usuario: "admin", password: "udo2026" },
+    { usuario: "ronald", password: "candy" }
+];
+
 const TOKEN_SECRETO = "credencial-secreta-caps-store-2026";
+
+// Inventario (Recuerda que si ya pasaste a MongoDB, esto es solo temporal)
+const inventario = []; 
+
+// RUTA DE LOGIN
+app.post('/login', (req, res) => {
+    const { usuario, password } = req.body;
+    const usuarioValido = usuariosAdministradores.find(u => u.usuario === usuario && u.password === password);
+
+    if (usuarioValido) {
+        res.json({ exito: true, token: TOKEN_SECRETO, mensaje: "Acceso concedido" });
+    } else {
+        res.status(401).json({ exito: false, mensaje: "Usuario o contraseña incorrectos" });
+    }
+});
 
 // 4. RUTAS USANDO MONGODB
 app.get('/productos', async (req, res) => {
