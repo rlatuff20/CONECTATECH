@@ -3,153 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Caps-store | Panel de Control Secreto</title>
+    <title>Caps-store | Panel de Control</title>
     <style>
-        :root {
-            --nike-black: #060606;
-            --nike-gray: #e6f2ff;
-            --white: #ffffff;
-            --error-red: #ff3333;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Courier New', Courier, monospace; }
-        body { background-color: var(--nike-gray); color: var(--nike-black); padding: 40px 20px; }
-        
-        .box-container { max-width: 500px; margin: 50px auto; background: var(--white); padding: 30px; border-radius: 9px; border: 2px dashed var(--nike-black); box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        .title { font-size: 1.6rem; margin-bottom: 15px; font-weight: 700; text-transform: uppercase; }
+        :root { --nike-black: #060606; --nike-gray: #e6f2ff; --white: #ffffff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
+        body { background-color: var(--nike-gray); padding: 40px 20px; }
+        .box-container { max-width: 500px; margin: 50px auto; background: var(--white); padding: 30px; border-radius: 9px; border: 2px dashed var(--nike-black); }
         .input-group { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
-        input { padding: 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 1rem; }
-        
-        .btn { padding: 12px; background-color: var(--nike-black); color: var(--white); border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; text-transform: uppercase; }
+        input { padding: 12px; border-radius: 6px; border: 1px solid #ccc; }
+        .btn { padding: 12px; background-color: var(--nike-black); color: white; border: none; border-radius: 8px; cursor: pointer; text-transform: uppercase; }
         .btn-save { background-color: #007bff; }
-        .btn-logout { background-color: #dc3545; margin-top: 15px; }
-        .btn-volver { background-color: var(--nike-black); margin-top: 10px; display: block; text-align: center; color: white; text-decoration: none; padding: 12px; border-radius: 8px; font-weight: 600; text-transform: uppercase; }
-        
-        /* Clases tácticas para ocultar y mostrar elementos */
         .oculto { display: none !important; }
     </style>
 </head>
 <body>
 
     <div id="seccion-login" class="box-container">
-        <h2 class="title">🔐 ACCESO RESTRINGIDO</h2>
-        <p style="color: gray;">Identifícate para gestionar el inventario de Caps-store.</p>
-        
+        <h2>🔐 ACCESO RESTRINGIDO</h2>
         <form id="form-login" class="input-group">
-            <input type="text" id="login-usuario" placeholder="Usuario administrador" required>
-            <input type="password" id="login-password" placeholder="Contraseña de seguridad" required>
-            <button type="submit" class="btn">Ingresar al Búnker</button>
+            <input type="text" id="login-usuario" placeholder="Usuario" required>
+            <input type="password" id="login-password" placeholder="Contraseña" required>
+            <button type="submit" class="btn">Ingresar</button>
         </form>
-        <a href="index1.html" class="btn-volver">⬅️ Volver a la Tienda</a>
     </div>
 
     <div id="seccion-panel" class="box-container oculto">
-        <h2 class="title">⚙️ PANEL DE CONTROL</h2>
-        <p style="color: gray;">Fichajes y actualizaciones en tiempo real.</p>
-        
-<form id="form-nuevo-producto" class="input-group">
-    <input type="text" id="nuevo-nombre" name="nuevo-nombre" placeholder="Nombre" required>
-    <input type="text" id="nueva-categoria" name="nueva-categoria" placeholder="Categoría" required>
-    <input type="number" id="nuevo-precio" name="nuevo-precio" placeholder="Precio" step="0.01" required>
-    <input type="text" id="nueva-img" name="nueva-img" placeholder="Nombre de la foto" required>
-    <input type="number" id="nuevo-stock" name="nuevo-stock" placeholder="Stock" required>
-    <input type="text" id="nuevas-features" name="nuevas-features" placeholder="Características (a, b, c)" required>
-     </form>
-         <button type="submit" id="btn-guardar" class="btn btn-save">➕ Guardar Nuevo Fichaje</button>
-        <button onclick="cerrarSesion()" class="btn btn-logout" style="width: 100%;">🔒 Cerrar Sesión</button>
+        <h2>⚙️ PANEL DE CONTROL</h2>
+        <form id="form-nuevo-producto" class="input-group">
+            <input type="text" id="nuevo-nombre" placeholder="Nombre" required>
+            <input type="text" id="nueva-categoria" placeholder="Categoría" required>
+            <input type="number" id="nuevo-precio" placeholder="Precio" required>
+            <input type="text" id="nueva-img" placeholder="Imagen" required>
+            <input type="number" id="nuevo-stock" placeholder="Stock" required>
+            <input type="text" id="nuevas-features" placeholder="Características (a,b,c)" required>
+            <button type="submit" class="btn btn-save">➕ Guardar Producto</button>
+        </form>
+        <button onclick="cerrarSesion()" class="btn" style="margin-top:15px; width:100%">🔒 Cerrar Sesión</button>
     </div>
 
     <script>
-        // Al cargar la página, verificamos de inmediato si ya tiene el token guardado en el navegador
-        document.addEventListener("DOMContentLoaded", function() {
-            const tokenExistente = localStorage.getItem("tokenAdmin");
-            if (tokenExistente) {
-                // Si ya está logueado, saltamos directo al panel
-                mostrarPanel();
-            }
+        document.addEventListener("DOMContentLoaded", () => {
+            if (localStorage.getItem("tokenAdmin")) mostrarPanel();
         });
 
-        // CONTROLADOR DE LA VISTA 1: PROCESAR EL LOGIN
-        document.getElementById('form-login').addEventListener('submit', function(evento) {
-            evento.preventDefault();
-
-            const datosLogin = {
-                usuario: document.getElementById('login-usuario').value,
-                password: document.getElementById('login-password').value
-            };
-
-            fetch('https://tienda-pro-muyy.onrender.com/login', {
+        document.getElementById('form-login').addEventListener('submit', (e) => {
+            e.preventDefault();
+            fetch('https://tienda-pro-muyy.onrender.com/login', { // AQUI AGREGUÉ LA COMA
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(datosLogin)
+                body: JSON.stringify({ 
+                    usuario: document.getElementById('login-usuario').value, 
+                    password: document.getElementById('login-password').value 
+                })
             })
             .then(res => res.json())
             .then(data => {
                 if (data.exito) {
-                    // ¡GOL! Guardamos la credencial en el disco local del navegador (localStorage)
                     localStorage.setItem("tokenAdmin", data.token);
-                    document.getElementById('form-login').reset();
                     mostrarPanel();
-                } else {
-                    alert(data.mensaje);
-                }
-            })
-            .catch(err => {
-                console.error("Error en login:", err);
-                alert("Error de conexión con el backend.");
+                } else { alert(data.mensaje); }
             });
         });
 
-        // CONTROLADOR DE LA VISTA 2: GUARDAR NUEVO PRODUCTO (POST PROTEGIDO)
-        document.getElementById('form-nuevo-producto').addEventListener('submit', function(evento) {
-            evento.preventDefault(); 
+        document.getElementById('form-nuevo-producto').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const producto = {
+                name: document.getElementById('nuevo-nombre').value,
+                category: document.getElementById('nueva-categoria').value,
+                price: parseFloat(document.getElementById('nuevo-precio').value),
+                img: document.getElementById('nueva-img').value,
+                stock: parseInt(document.getElementById('nuevo-stock').value),
+                features: document.getElementById('nuevas-features').value.split(',')
+            };
 
-            // Recuperamos el token que tenemos guardado en el navegador
-            const token = localStorage.getItem("tokenAdmin");
-
-           const productoFichado = {
-               name: document.getElementById('nuevo-nombre').value,
-             category: document.getElementById('nueva-categoria').value,
-             price: parseFloat(document.getElementById('nuevo-precio').value),
-             img: document.getElementById('nuevo-img').value,
-             stock: parseInt(document.getElementById('nuevo-stock').value), // Captura el stock
-             features: document.getElementById('nuevas-features').value.split(',').map(s => s.trim()) // Convierte "A, B" a ["A", "B"]
-               };
-
-             fetch('https://tienda-pro-muyy.onrender.com/productos', {
+            fetch('https://tienda-pro-muyy.onrender.com/productos', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': token // ¡PASAMOS EL TOKEN POR LOS ENCABEZADOS!
+                    'Authorization': localStorage.getItem("tokenAdmin")
                 },
-                body: JSON.stringify(productoFichado)
+                body: JSON.stringify(producto)
             })
-            .then(respuesta => {
-                if(respuesta.status === 403) {
-                    throw new Error("No autorizado");
-                }
-                return respuesta.json();
-            })
-            .then(data => {
-                alert(data.mensaje || "¡Producto guardado exitosamente!"); 
-                document.getElementById('form-nuevo-producto').reset();
-            })
-            .catch(error => {
-                console.error('Error al enviar datos:', error);
-                alert("Acceso denegado o sesión expirada. Vuelve a iniciar sesión.");
-                cerrarSesion();
-            });
+            .then(res => res.json())
+            .then(data => { alert(data.mensaje); })
+            .catch(err => console.error(err));
         });
 
-        // FUNCIONES TÁCTICAS DE CONTROL VISUAL
         function mostrarPanel() {
             document.getElementById('seccion-login').classList.add('oculto');
             document.getElementById('seccion-panel').classList.remove('oculto');
         }
 
         function cerrarSesion() {
-            localStorage.removeItem("tokenAdmin"); // Destruimos el token del navegador
-            document.getElementById('seccion-panel').classList.add('oculto');
-            document.getElementById('seccion-login').classList.remove('oculto');
+            localStorage.removeItem("tokenAdmin");
+            location.reload();
         }
     </script>
 </body>
