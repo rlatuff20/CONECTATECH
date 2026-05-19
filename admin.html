@@ -117,7 +117,7 @@
              features: document.getElementById('nuevas-features').value.split(',').map(s => s.trim()) // Convierte "A, B" a ["A", "B"]
                };
 
-            fetch('http://192.168.0.148:3000/productos', {
+             fetch('https://tienda-pro-muyy.onrender.com/productos', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
