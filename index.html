@@ -254,284 +254,284 @@
     </div>
 
     <script>
-        let cart = [];
-        let productosGlobales = []; 
+    let cart = [];
+    let productosGlobales = []; 
 
-        // --- RENDERIZADO AGRUPADO POR CATEGORÍAS ---
-        function renderProducts(listaAMostrar = productosGlobales) {
-            const container = document.getElementById('catalogo-container');
-            
-            if (listaAMostrar.length === 0) {
-                container.innerHTML = "<p style='text-align:center; width:100%; color:gray; font-weight:600; margin-top:20px;'>No encontramos coincidencias.</p>";
-                return;
-            }
+    // --- RENDERIZADO AGRUPADO POR CATEGORÍAS ---
+    function renderProducts(listaAMostrar = productosGlobales) {
+        const container = document.getElementById('catalogo-container');
+        
+        if (listaAMostrar.length === 0) {
+            container.innerHTML = "<p style='text-align:center; width:100%; color:gray; font-weight:600; margin-top:20px;'>No encontramos coincidencias.</p>";
+            return;
+        }
 
-            // Detectamos las categorías únicas
-            const categoriasUnicas = [...new Set(listaAMostrar.map(p => p.category))];
-            let htmlHTML = '';
+        const categoriasUnicas = [...new Set(listaAMostrar.map(p => p.category))];
+        let htmlHTML = '';
 
-            // Armamos un bloque completo por cada categoría
-            categoriasUnicas.forEach(categoria => {
-                const productosDeEstaCategoria = listaAMostrar.filter(p => p.category === categoria);
-                const cantidadText = productosDeEstaCategoria.length === 1 ? '1 producto' : `${productosDeEstaCategoria.length} productos`;
+        categoriasUnicas.forEach(categoria => {
+            const productosDeEstaCategoria = listaAMostrar.filter(p => p.category === categoria);
+            const cantidadText = productosDeEstaCategoria.length === 1 ? '1 producto' : `${productosDeEstaCategoria.length} productos`;
 
-                htmlHTML += `
-                <div class="category-section">
-                    <div class="category-header">
-                        <div class="category-title-wrapper">
-                            <div class="category-bar"></div>
-                            <h3 class="category-title">${categoria}</h3>
-                        </div>
-                        <div class="category-count">${cantidadText}</div>
+            htmlHTML += `
+            <div class="category-section">
+                <div class="category-header">
+                    <div class="category-title-wrapper">
+                        <div class="category-bar"></div>
+                        <h3 class="category-title">${categoria}</h3>
                     </div>
-                    
-                    <div class="product-grid">
-                        ${productosDeEstaCategoria.map(p => {
-                            const estaAgotado = p.stock === 0;
-                            return `
-                            <div class="card" onclick="${estaAgotado ? '' : `abrirDetalles(${p.id})`}" style="cursor: ${estaAgotado ? 'not-allowed' : 'pointer'}">
-                                <div class="card-img-container">
-                                    <img src="${p.img}" alt="${p.name}">
-                                    ${estaAgotado ? '<div class="badge-agotado">AGOTADO</div>' : ''}
-                                </div>
-                                <div class="card-info">
-                                    <div class="card-title">${p.name}</div>
-                                    <div style="display:flex; justify-content:space-between; align-items:end; margin-top:5px;">
-                                        <div class="card-price">$${p.price.toFixed(2)}</div>
-                                        <div style="color:gray; font-size:0.75rem;">Disponible</div>
-                                    </div>
-                                    <div class="card-detail-text">VER DETALLES</div>
-                                </div>
-                            </div>
-                            `
-                        }).join('')}
-                    </div>
+                    <div class="category-count">${cantidadText}</div>
                 </div>
-                `;
-            });
-
-            container.innerHTML = htmlHTML;
-        }
-
-        function buscarProductos() {
-            const texto = document.getElementById('search-input').value.toLowerCase();
-            const productosFiltrados = productosGlobales.filter(p => p.name.toLowerCase().includes(texto));
-            renderProducts(productosFiltrados);
-        }
-
-        function filtrarCategoria(categoria) {
-            let productosFiltrados;
-            if(categoria === 'Todas') {
-                productosFiltrados = productosGlobales;
-            } else {
-                productosFiltrados = productosGlobales.filter(p => p.category === categoria);
-            }
-            renderProducts(productosFiltrados);
-            document.getElementById('sidebar-menu').classList.remove('active');
-            document.getElementById('menu-overlay').classList.remove('active');
-        }
-
-        // --- LÓGICA DE DETALLES DE PRODUCTO (MODAL) ---
-        let productoActualModal = null;
-        let cantidadModal = 1;
-
-        function abrirDetalles(id) {
-            const prod = productosGlobales.find(p => p.id === id);
-            if(!prod || prod.stock === 0) return; 
-
-            productoActualModal = prod;
-            cantidadModal = 1; 
-
-            // Inyectamos los datos básicos
-            document.getElementById('pd-img').src = prod.img;
-            document.getElementById('pd-title').innerText = prod.name;
-            document.getElementById('pd-price-box').innerText = `consulte precio especial — $${prod.price.toFixed(2)}`;
-            document.getElementById('pd-qty').innerText = cantidadModal;
-            document.getElementById('pd-subtotal').innerText = `$${prod.price.toFixed(2)}`;
-
-            // --- ESTO ES LO NUEVO: Inyectamos las características dinámicas ---
-            const contenedorCaracteristicas = document.querySelector('.pm-features');
-            
-            // Si el producto en el servidor tiene "features", las dibujamos
-            if (prod.features && prod.features.length > 0) {
-                contenedorCaracteristicas.innerHTML = prod.features.map(caracteristica => 
-                    `<div class="pm-feature-item">✅ ${caracteristica}</div>`
-                ).join('');
-            } else {
-                // Si se te olvida ponerle "features" en el servidor, ponemos un texto por defecto
-                contenedorCaracteristicas.innerHTML = `
-                    <div class="pm-feature-item">✅ Producto Original</div>
-                    <div class="pm-feature-item">✅ Calidad Garantizada</div>
-                `;
-            }
-
-            document.getElementById('product-detail-modal').classList.add('open');
-        }
-
-        function cerrarDetalles() {
-            document.getElementById('product-detail-modal').classList.remove('open');
-        }
-
-        function cambiarCantidadModal(delta) {
-            if(cantidadModal + delta >= 1) {
-                cantidadModal += delta;
-                document.getElementById('pd-qty').innerText = cantidadModal;
-                const subtotal = cantidadModal * productoActualModal.price;
-                document.getElementById('pd-subtotal').innerText = `$${subtotal.toFixed(2)}`;
-            }
-        }
-
-        function agregarDesdeModal() {
-            const inCart = cart.find(i => i.id === productoActualModal.id);
-            if(inCart) {
-                inCart.qty += cantidadModal;
-            } else {
-                cart.push({...productoActualModal, qty: cantidadModal});
-            }
-            updateUI();
-            triggerMainAnim('anim-add');
-            cerrarDetalles();
-        }
-
-        function toggleCart() {
-            document.getElementById('cart-panel').classList.toggle('open');
-            document.getElementById('overlay').classList.toggle('open');
-        }
-
-        function updateUI() {
-            const count = cart.reduce((s, i) => s + i.qty, 0);
-            document.getElementById('cart-count').innerText = count;
-            const container = document.getElementById('cart-items-container');
-            
-            if(cart.length === 0) {
-                container.innerHTML = '<p style="text-align:center; margin-top:20px;">Aún no has seleccionado nada.</p>';
-            } else {
-                container.innerHTML = cart.map(item => `
-                    <div class="cart-item">
-                        <img src="${item.img}" class="cart-item-img">
-                        <div style="flex-grow:1;">
-                            <div style="font-weight:600; font-size:0.9rem;">${item.name}</div>
-                            <div style="font-size:0.8rem;">$${item.price.toFixed(2)} x ${item.qty}</div>
+                
+                <div class="product-grid">
+                    ${productosDeEstaCategoria.map(p => {
+                        const estaAgotado = p.stock === 0;
+                        // CORRECCIÓN CLAVE 1: Usamos _id de MongoDB y lo encerramos en comillas simples
+                        const idSeguro = p._id || p.id;
+                        return `
+                        <div class="card" onclick="${estaAgotado ? '' : `abrirDetalles('${idSeguro}')`}" style="cursor: ${estaAgotado ? 'not-allowed' : 'pointer'}">
+                            <div class="card-img-container">
+                                <img src="${p.img}" alt="${p.name}">
+                                ${estaAgotado ? '<div class="badge-agotado">AGOTADO</div>' : ''}
+                            </div>
+                            <div class="card-info">
+                                <div class="card-title">${p.name}</div>
+                                <div style="display:flex; justify-content:space-between; align-items:end; margin-top:5px;">
+                                    <div class="card-price">$${p.price.toFixed(2)}</div>
+                                    <div style="color:gray; font-size:0.75rem;">Disponible</div>
+                                </div>
+                                <div class="card-detail-text">VER DETALLES</div>
+                            </div>
                         </div>
-                        <button class="delete-btn" onclick="animarYEliminar(event, ${item.id})">🗑️</button>
-                    </div>
-                `).join('');
-            }
-            const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
-            document.getElementById('cart-total-price').innerText = `$${total.toFixed(2)}`;
-        }
-
-        function animarYEliminar(event, id) {
-            const btn = event.target;
-            btn.classList.add('anim-papelera'); 
-            triggerMainAnim('anim-remove');    
-            
-            setTimeout(() => {
-                cart = cart.filter(i => i.id !== id);
-                updateUI();
-            }, 450);
-        }
-
-        function triggerMainAnim(className) {
-            const target = document.getElementById('cart-icon-inner');
-            if(target) {
-                target.classList.remove('anim-add', 'anim-remove');
-                void target.offsetWidth; 
-                target.classList.add(className);
-                setTimeout(() => target.classList.remove(className), 400);
-            }
-        }
-
-        // --- LÓGICA DEL CHECKOUT INTELIGENTE ---
-        let metodoPagoSeleccionado = 'Pago Móvil';
-        let tipoEntregaSeleccionado = 'Entrega Presencial';
-
-        function abrirCheckout() {
-            if(cart.length === 0) return alert("Tu carrito está vacío.");
-            const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
-            document.getElementById('chk-total').innerText = `$${total.toFixed(2)}`;
-            
-            toggleCart(); 
-            document.getElementById('checkout-modal').classList.add('open');
-            document.getElementById('menu-overlay').classList.add('active');
-        }
-
-        function cerrarCheckout() {
-            document.getElementById('checkout-modal').classList.remove('open');
-            document.getElementById('menu-overlay').classList.remove('active');
-        }
-
-        function seleccionarOpcion(grupo, btnElement, valor) {
-            const contenedor = grupo === 'pago' ?
-            document.getElementById('payment-options') : document.getElementById('delivery-options');
-            const botones = contenedor.getElementsByClassName('opt-btn');
-            
-            for(let btn of botones) { btn.classList.remove('active'); }
-            btnElement.classList.add('active');
-
-            if(grupo === 'pago') metodoPagoSeleccionado = valor;
-            else tipoEntregaSeleccionado = valor;
-        }
-
-        function enviarPedidoFinal() {
-            const nombre = document.getElementById('chk-nombre').value.trim();
-            const apellido = document.getElementById('chk-apellido').value.trim();
-            const telefono = document.getElementById('chk-telefono').value.trim();
-
-            if(!nombre || !apellido || !telefono) {
-                return alert("⚠️ Por favor, completa tu Nombre, Apellido y Teléfono para continuar.");
-            }
-
-            // Creamos una lista (Array) para asegurar que cada cosa vaya en una línea nueva
-            const lineas = [];
-            lineas.push(`¡Hola Caps-Store! Soy *${nombre} ${apellido}* y quiero hacer este pedido:`);
-            lineas.push(""); // Espacio en blanco
-
-            cart.forEach(item => {
-                // Usamos un guion limpio en vez de emojis problemáticos
-                lineas.push(`- ${item.qty}x ${item.name} ($${item.price.toFixed(2)})`);
-            });
-            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-
-            lineas.push(""); // Espacio en blanco
-            lineas.push(`*TOTAL A PAGAR: $${total.toFixed(2)}*`);
-            lineas.push(`*Método de pago:* ${metodoPagoSeleccionado}`);
-            lineas.push(`*Tipo de entrega:* ${tipoEntregaSeleccionado}`);
-            lineas.push(`*Teléfono de contacto:* ${telefono}`);
-            
-            // Unimos todo con saltos de línea reales (\n) y codificamos de un solo golpe
-            const mensajeFinal = encodeURIComponent(lineas.join('\n'));
-            window.open(`https://wa.me/584248959934?text=${mensajeFinal}`, '_blank');
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-          fetch('https://tienda-pro-muyy.onrender.com/productos')
-                .then(res => res.json())
-                .then(products => {
-                    productosGlobales = products; 
-                    renderProducts(); 
-                })
-                .catch(error => {
-                    console.error('Error al cargar:', error);
-                    // Actualizado para usar el nuevo contenedor
-                    document.getElementById('catalogo-container').innerHTML = "<p style='color:red; text-align:center;'>Error al cargar el inventario. Asegúrate de que el servidor local esté encendido.</p>";
-                });
-
-            const menuBtn = document.getElementById('menu-btn');
-            const closeBtn = document.getElementById('close-btn');
-            const sidebar = document.getElementById('sidebar-menu');
-            const overlayMenu = document.getElementById('menu-overlay');
-
-            if (menuBtn && closeBtn && sidebar && overlayMenu) {
-                function toggleMenu() {
-                    sidebar.classList.toggle('active');
-                    overlayMenu.classList.toggle('active');
-                }
-                menuBtn.addEventListener('click', toggleMenu);
-                closeBtn.addEventListener('click', toggleMenu);
-                overlayMenu.addEventListener('click', toggleMenu);
-            }
+                        `
+                    }).join('')}
+                </div>
+            </div>
+            `;
         });
-    </script>
+
+        container.innerHTML = htmlHTML;
+    }
+
+    function buscarProductos() {
+        const texto = document.getElementById('search-input').value.toLowerCase();
+        const productosFiltrados = productosGlobales.filter(p => p.name.toLowerCase().includes(texto));
+        renderProducts(productosFiltrados);
+    }
+
+    function filtrarCategoria(categoria) {
+        let productosFiltrados;
+        if(categoria === 'Todas') {
+            productosFiltrados = productosGlobales;
+        } else {
+            productosFiltrados = productosGlobales.filter(p => p.category === categoria);
+        }
+        renderProducts(productosFiltrados);
+        document.getElementById('sidebar-menu').classList.remove('active');
+        document.getElementById('menu-overlay').classList.remove('active');
+    }
+
+    // --- LÓGICA DE DETALLES DE PRODUCTO (MODAL) ---
+    let productoActualModal = null;
+    let cantidadModal = 1;
+
+    // CORRECCIÓN CLAVE 2: La función ahora busca por _id
+    function abrirDetalles(idBuscado) {
+        const prod = productosGlobales.find(p => String(p._id || p.id) === String(idBuscado));
+        if(!prod || prod.stock === 0) return; 
+
+        productoActualModal = prod;
+        cantidadModal = 1; 
+
+        document.getElementById('pd-img').src = prod.img;
+        document.getElementById('pd-title').innerText = prod.name;
+        document.getElementById('pd-price-box').innerText = `consulte precio especial — $${prod.price.toFixed(2)}`;
+        document.getElementById('pd-qty').innerText = cantidadModal;
+        document.getElementById('pd-subtotal').innerText = `$${prod.price.toFixed(2)}`;
+
+        const contenedorCaracteristicas = document.querySelector('.pm-features');
+        
+        if (prod.features && prod.features.length > 0) {
+            contenedorCaracteristicas.innerHTML = prod.features.map(caracteristica => 
+                `<div class="pm-feature-item">✅ ${caracteristica}</div>`
+            ).join('');
+        } else {
+            contenedorCaracteristicas.innerHTML = `
+                <div class="pm-feature-item">✅ Producto Original</div>
+                <div class="pm-feature-item">✅ Calidad Garantizada</div>
+            `;
+        }
+
+        document.getElementById('product-detail-modal').classList.add('open');
+    }
+
+    function cerrarDetalles() {
+        document.getElementById('product-detail-modal').classList.remove('open');
+    }
+
+    function cambiarCantidadModal(delta) {
+        if(cantidadModal + delta >= 1) {
+            cantidadModal += delta;
+            document.getElementById('pd-qty').innerText = cantidadModal;
+            const subtotal = cantidadModal * productoActualModal.price;
+            document.getElementById('pd-subtotal').innerText = `$${subtotal.toFixed(2)}`;
+        }
+    }
+
+    // CORRECCIÓN CLAVE 3: Identificar en el carrito usando _id
+    function agregarDesdeModal() {
+        const idActual = productoActualModal._id || productoActualModal.id;
+        const inCart = cart.find(i => String(i._id || i.id) === String(idActual));
+        
+        if(inCart) {
+            inCart.qty += cantidadModal;
+        } else {
+            cart.push({...productoActualModal, qty: cantidadModal});
+        }
+        updateUI();
+        triggerMainAnim('anim-add');
+        cerrarDetalles();
+    }
+
+    function toggleCart() {
+        document.getElementById('cart-panel').classList.toggle('open');
+        document.getElementById('overlay').classList.toggle('open');
+    }
+
+    function updateUI() {
+        const count = cart.reduce((s, i) => s + i.qty, 0);
+        document.getElementById('cart-count').innerText = count;
+        const container = document.getElementById('cart-items-container');
+        
+        if(cart.length === 0) {
+            container.innerHTML = '<p style="text-align:center; margin-top:20px;">Aún no has seleccionado nada.</p>';
+        } else {
+            container.innerHTML = cart.map(item => {
+                const itemId = item._id || item.id;
+                return `
+                <div class="cart-item">
+                    <img src="${item.img}" class="cart-item-img">
+                    <div style="flex-grow:1;">
+                        <div style="font-weight:600; font-size:0.9rem;">${item.name}</div>
+                        <div style="font-size:0.8rem;">$${item.price.toFixed(2)} x ${item.qty}</div>
+                    </div>
+                    <button class="delete-btn" onclick="animarYEliminar(event, '${itemId}')">🗑️</button>
+                </div>
+                `
+            }).join('');
+        }
+        const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+        document.getElementById('cart-total-price').innerText = `$${total.toFixed(2)}`;
+    }
+
+    // CORRECCIÓN CLAVE 5: Filtro de eliminación usando _id
+    function animarYEliminar(event, idBuscado) {
+        const btn = event.target;
+        btn.classList.add('anim-papelera'); 
+        triggerMainAnim('anim-remove');    
+        
+        setTimeout(() => {
+            cart = cart.filter(i => String(i._id || i.id) !== String(idBuscado));
+            updateUI();
+        }, 450);
+    }
+
+    function triggerMainAnim(className) {
+        const target = document.getElementById('cart-icon-inner');
+        if(target) {
+            target.classList.remove('anim-add', 'anim-remove');
+            void target.offsetWidth; 
+            target.classList.add(className);
+            setTimeout(() => target.classList.remove(className), 400);
+        }
+    }
+
+    // --- LÓGICA DEL CHECKOUT INTELIGENTE ---
+    let metodoPagoSeleccionado = 'Pago Móvil';
+    let tipoEntregaSeleccionado = 'Entrega Presencial';
+
+    function abrirCheckout() {
+        if(cart.length === 0) return alert("Tu carrito está vacío.");
+        const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+        document.getElementById('chk-total').innerText = `$${total.toFixed(2)}`;
+        
+        toggleCart(); 
+        document.getElementById('checkout-modal').classList.add('open');
+        document.getElementById('menu-overlay').classList.add('active');
+    }
+
+    function cerrarCheckout() {
+        document.getElementById('checkout-modal').classList.remove('open');
+        document.getElementById('menu-overlay').classList.remove('active');
+    }
+
+    function seleccionarOpcion(grupo, btnElement, valor) {
+        const contenedor = grupo === 'pago' ?
+        document.getElementById('payment-options') : document.getElementById('delivery-options');
+        const botones = contenedor.getElementsByClassName('opt-btn');
+        
+        for(let btn of botones) { btn.classList.remove('active'); }
+        btnElement.classList.add('active');
+
+        if(grupo === 'pago') metodoPagoSeleccionado = valor;
+        else tipoEntregaSeleccionado = valor;
+    }
+
+    function enviarPedidoFinal() {
+        const nombre = document.getElementById('chk-nombre').value.trim();
+        const apellido = document.getElementById('chk-apellido').value.trim();
+        const telefono = document.getElementById('chk-telefono').value.trim();
+
+        if(!nombre || !apellido || !telefono) {
+            return alert("⚠️ Por favor, completa tu Nombre, Apellido y Teléfono para continuar.");
+        }
+
+        const lineas = [];
+        lineas.push(`¡Hola Caps-Store! Soy *${nombre} ${apellido}* y quiero hacer este pedido:`);
+        lineas.push(""); 
+
+        cart.forEach(item => {
+            lineas.push(`- ${item.qty}x ${item.name} ($${item.price.toFixed(2)})`);
+        });
+        const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+        lineas.push(""); 
+        lineas.push(`*TOTAL A PAGAR: $${total.toFixed(2)}*`);
+        lineas.push(`*Método de pago:* ${metodoPagoSeleccionado}`);
+        lineas.push(`*Tipo de entrega:* ${tipoEntregaSeleccionado}`);
+        lineas.push(`*Teléfono de contacto:* ${telefono}`);
+        
+        const mensajeFinal = encodeURIComponent(lineas.join('\n'));
+        window.open(`https://wa.me/584248959934?text=${mensajeFinal}`, '_blank');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      fetch('https://tienda-pro-muyy.onrender.com/productos')
+            .then(res => res.json())
+            .then(products => {
+                productosGlobales = products; 
+                renderProducts(); 
+            })
+            .catch(error => {
+                console.error('Error al cargar:', error);
+                document.getElementById('catalogo-container').innerHTML = "<p style='color:red; text-align:center;'>Error al cargar el inventario. Asegúrate de que el servidor local esté encendido.</p>";
+            });
+
+        const menuBtn = document.getElementById('menu-btn');
+        const closeBtn = document.getElementById('close-btn');
+        const sidebar = document.getElementById('sidebar-menu');
+        const overlayMenu = document.getElementById('menu-overlay');
+
+        if (menuBtn && closeBtn && sidebar && overlayMenu) {
+            function toggleMenu() {
+                sidebar.classList.toggle('active');
+                overlayMenu.classList.toggle('active');
+            }
+            menuBtn.addEventListener('click', toggleMenu);
+            closeBtn.addEventListener('click', toggleMenu);
+            overlayMenu.addEventListener('click', toggleMenu);
+        }
+    });
+</script>
 </body>
 </html>
