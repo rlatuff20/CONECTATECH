@@ -20,6 +20,11 @@
         .top-bar { background-color: #111; color: white; font-size: 11px; text-align: center; padding: 8px; font-weight: 500; }
         .main-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: #ffffff; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .logo { font-size: 22px; font-weight: 800; margin: 0; letter-spacing: 1px; text-decoration: none; color: #000; }
+        .logo img {
+                     height: 35px; 
+                     width: auto;  
+                      display: block;
+                    }
         .icon-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #333; }
         .cart-btn { background: none; border: none; font-size: 24px; cursor: pointer; position: relative; display: inline-block; }
         .cart-badge { position: absolute; top: -5px; right: -10px; background-color: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px; font-weight: bold; }
@@ -101,7 +106,7 @@
         .form-group label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 5px; color: #555; }
         .form-group input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; outline: none; transition: border 0.3s; }
         .form-group input:focus { border-color: var(--nike-black); }
-        h4 { font-size: 0.95rem; font-weight: 800; margin: 20px 0 10px 0; color: #333; }
+         h4 { font-size: 0.95rem; font-weight: 800; margin: 20px 0 10px 0; color: #333; }
         .payment-grid, .delivery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .opt-btn { padding: 12px; border: 1px solid #ddd; background: #f9f9f9; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; color: #555; font-size: 0.9rem; }
         .opt-btn.active { border-color: var(--nike-black); background: var(--nike-black); color: white; }
@@ -175,7 +180,9 @@
 
     <header class="main-header">
         <button id="menu-btn" class="icon-btn">☰</button>
-       <a href="#" class="logo">CONECTATECH</a>
+       <a href="#" class="logo">
+    <img src="logo.png" alt="ConectaTech">
+</a>
         
         <button class="cart-btn" onclick="toggleCart()">
             <span id="cart-icon-inner" style="display:inline-block;">🛒</span> 
