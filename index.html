@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>ConectaTech | Conectando tu mundo tecnologico</title>
-    <style>
-  :root {
+    <meta property="og:title" content="ConectaTech | Accesorios Apple y Periféricos">
+    <meta property="og:description" content="Tu proveedor de confianza para tecnología en Cumaná. ¡Descubre nuestro catálogo!">
+    <meta property="og:image" content="https://i.imgur.com/TuLogoAqui.jpg"> <meta property="og:type" content="website">
+<style>
+    :root {
         --nike-black: #1d1d1f;       
         --nike-gray: #f5f5f7;        
         --white: #ffffff;            
@@ -169,7 +172,17 @@
             color: var(--text-muted); 
             letter-spacing: 0.5px;
         }
+        /* --- ANIMACIÓN DE CARGA (LOADER) --- */
+        .loader-container { text-align: center; padding: 60px 20px; width: 100%; }
+        .spinner { width: 50px; height: 50px; border: 4px solid #e0e0e0; border-top: 4px solid var(--nike-black); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loader-text { font-size: 1.1rem; font-weight: 800; color: var(--nike-black); margin-bottom: 8px;}
+        .loader-sub { font-size: 0.85rem; color: var(--text-muted); }
         
+        /* --- NOTIFICACIONES TOAST --- */
+        #toast-container { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); z-index: 4000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast { background-color: var(--nike-black); color: var(--white); padding: 12px 25px; border-radius: 30px; font-size: 0.9rem; font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.2); opacity: 0; transform: translateY(20px); transition: all 0.3s ease; text-align: center; white-space: nowrap; }
+        .toast.show { opacity: 1; transform: translateY(0); }
     </style>
 </head>
 <body>
@@ -211,6 +224,8 @@
 
     <main class="container" id="catalogo-container">
         </main>
+    
+    <div id="toast-container"></div>
     
 <footer class="main-footer">
         <div class="footer-container">
@@ -325,8 +340,8 @@
     </div>
 
     <script>
-    let cart = [];
-    let productosGlobales = []; 
+      let cart = [];
+      let productosGlobales = []; 
 
     // --- RENDERIZADO AGRUPADO POR CATEGORÍAS ---
     function renderProducts(listaAMostrar = productosGlobales) {
@@ -401,7 +416,23 @@
         document.getElementById('sidebar-menu').classList.remove('active');
         document.getElementById('menu-overlay').classList.remove('active');
     }
-
+// Función para mostrar el cartelito
+        function mostrarToast(mensaje) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerText = mensaje;
+            container.appendChild(toast);
+            
+            // Animación de entrada
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            // Desaparece a los 2.5 segundos
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
     // --- LÓGICA DE DETALLES DE PRODUCTO (MODAL) ---
     let productoActualModal = null;
     let cantidadModal = 1;
@@ -462,6 +493,7 @@
         updateUI();
         triggerMainAnim('anim-add');
         cerrarDetalles();
+        mostrarToast(`✅ ${productoActualModal.name} al carrito`);
     }
 
     function toggleCart() {
@@ -577,7 +609,19 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-      fetch('https://tienda-pro-muyy.onrender.com/productos')
+      // --- INICIO DE CARGA DE PRODUCTOS ---
+        const catalogo = document.getElementById('catalogo-container');
+        
+        // Ponemos a dar vueltas el circulito mientras Render despierta
+        catalogo.innerHTML = `
+            <div class="loader-container">
+                <div class="spinner"></div>
+                <div class="loader-text">Conectando con el catálogo...</div>
+                <div class="loader-sub">Organizando el inventario, esto puede tomar unos segundos ⏳</div>
+            </div>
+        `;
+
+        fetch('https://tienda-pro-muyy.onrender.com/productos')
             .then(res => res.json())
             .then(products => {
                 productosGlobales = products; 
@@ -585,7 +629,7 @@
             })
             .catch(error => {
                 console.error('Error al cargar:', error);
-                document.getElementById('catalogo-container').innerHTML = "<p style='color:red; text-align:center;'>Error al cargar el inventario. Asegúrate de que el servidor local esté encendido.</p>";
+                catalogo.innerHTML = "<p style='color:red; text-align:center; padding: 40px;'>Error al cargar el inventario. Asegúrate de que el servidor esté encendido.</p>";
             });
 
         const menuBtn = document.getElementById('menu-btn');
