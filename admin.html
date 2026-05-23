@@ -69,7 +69,7 @@
             e.preventDefault();
             const producto = {
                 name: document.getElementById('nuevo-nombre').value,
-                category: document.getElementById('nueva-categoria').value,
+                category: document.getElementById('nueva-categoria').value trim(),
                 price: parseFloat(document.getElementById('nuevo-precio').value),
                 img: document.getElementById('nueva-img').value,
                 stock: parseInt(document.getElementById('nuevo-stock').value),
