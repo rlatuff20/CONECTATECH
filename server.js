@@ -66,6 +66,28 @@ app.post('/productos', async (req, res) => {
     res.json({ mensaje: "Producto guardado permanentemente en MongoDB", producto: nuevoProducto });
 });
 
+app.delete('/productos/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        // Aquí puedes verificar tu tokenAdmin si lo requieres
+        const token = req.headers['authorization'];
+        if (!token) {
+            return res.status(401).json({ mensaje: "No autorizado" });
+        }
+
+        const productoEliminado = await Producto.findByIdAndDelete(id);
+        
+        if (!productoEliminado) {
+            return res.status(404).json({ mensaje: "Producto no encontrado" });
+        }
+
+        res.json({ mensaje: "Producto eliminado con éxito" });
+    } catch (error) {
+        res.status(500).json({ mensaje: "Error al eliminar el producto", error });
+    }
+});
+
 // ... mantén aquí tu ruta POST /login igual ...
 
 const PORT = process.env.PORT || 3000;
