@@ -39,6 +39,10 @@
             <input type="text" id="nuevas-features" placeholder="Características (a,b,c)" required>
             <button type="submit" class="btn btn-save">➕ Guardar Producto</button>
         </form>
+            <hr style="margin: 20px 0; border: 1px solid #ccc;">
+             <h3>📦 Inventario Actual</h3>
+            <div id="lista-productos-admin" style="margin-bottom: 15px;"></div>
+        
         <button onclick="cerrarSesion()" class="btn" style="margin-top:15px; width:100%">🔒 Cerrar Sesión</button>
     </div>
 
@@ -49,7 +53,7 @@
 
         document.getElementById('form-login').addEventListener('submit', (e) => {
             e.preventDefault();
-            fetch('https://tienda-pro-muyy.onrender.com/login', { // AQUI AGREGUÉ LA COMA
+              fetch('/login', {// AQUI AGREGUÉ LA COMA
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
@@ -77,7 +81,7 @@
                 features: document.getElementById('nuevas-features').value.split(',')
             };
 
-            fetch('/productos', {
+             fetch('/productos', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -93,11 +97,50 @@
         function mostrarPanel() {
             document.getElementById('seccion-login').classList.add('oculto');
             document.getElementById('seccion-panel').classList.remove('oculto');
+            cargarProductosAdmin();
         }
 
         function cerrarSesion() {
             localStorage.removeItem("tokenAdmin");
             location.reload();
+        }
+
+        // Función para cargar los productos en el panel con su botón de eliminar
+        function cargarProductosAdmin() {
+            fetch('/productos')
+            .then(res => res.json())
+            .then(productos => {
+                const contenedor = document.getElementById('lista-productos-admin');
+                contenedor.innerHTML = ''; // Limpiamos antes de cargar
+                
+                productos.forEach(producto => {
+                    // Aquí dibujamos cada producto con su botón rojo
+                    contenedor.innerHTML += `
+                        <div style="display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; padding: 10px; margin-bottom: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                            <span style="font-size: 14px;"><strong>${producto.name}</strong> - $${producto.price}</span>
+                            <button onclick="borrarProducto('${producto._id}')" style="background: red; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">🗑️ Eliminar</button>
+                        </div>
+                    `;
+                });
+            })
+            .catch(err => console.error("Error al cargar inventario:", err));
+        }
+
+        // Función que se ejecuta al darle clic al botón rojo
+        function borrarProducto(idProducto) {
+            const seguro = confirm("¿Estás 100% seguro de que deseas eliminar este producto?");
+            if (seguro) {
+                fetch(`/productos/${idProducto}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': localStorage.getItem("tokenAdmin") }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    alert(data.mensaje);
+                    cargarProductosAdmin(); // Volvemos a cargar la lista para que desaparezca
+                })
+                .catch(error => console.error('Error:', error));
+            }
         }
     </script>
 </body>
