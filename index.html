@@ -623,7 +623,7 @@
             </div>
         `;
 
-        fetch('/api/productos')
+        fetch('https://conectatech.onrender.com//productos')
             .then(res => res.json())
             .then(products => {
                 productosGlobales = products; 
