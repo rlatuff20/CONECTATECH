@@ -148,6 +148,26 @@
                 })
                 .catch(error => console.error('Error:', error));
             }
+            // Función para sumar o restar stock
+        function actualizarStock(idProducto, accion) {
+            fetch(`/productos/${idProducto}/stock`, {
+                method: 'PUT',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': localStorage.getItem("tokenAdmin") 
+                },
+                body: JSON.stringify({ accion: accion })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.mensaje === "Stock actualizado") {
+                    cargarProductosAdmin(); // Recarga la lista para mostrar el número nuevo
+                } else {
+                    alert(data.mensaje); // Te avisa si intentas restar cuando ya está en 0
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
         }
     </script>
 </body>
