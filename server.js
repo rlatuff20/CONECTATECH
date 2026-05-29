@@ -116,6 +116,48 @@ app.delete('/productos/:id', async (req, res) => {
     }
 });
 
+// Actualizar stock sumar o restar
+    app.put('/productos/:id/stock', async (req, res) => {
+        try {
+        const { id } = req.params;
+        const { accion } = req.body; // Recibirá "sumar" o "restar"
+        const token = req.headers['authorization'];
+        
+        if (token !== TOKEN_SECRETO) {
+            return res.status(401).json({ mensaje: "No autorizado" });
+        }
+
+        const producto = await Producto.findById(id);
+        if (!producto) {
+            return res.status(404).json({ mensaje: "Producto no encontrado" });
+        }
+
+        // Lógica para modificar el stock
+        if (accion === 'sumar') {
+            producto.stock += 1;
+        } else if (accion === 'restar') {
+            if (producto.stock > 0) {
+                producto.stock -= 1;
+            } else {
+                return res.status(400).json({ mensaje: "El stock ya está en 0, no se puede restar más." });
+            }
+        }
+
+        await producto.save();
+
+        // Guardamos el movimiento en el historial
+        const nuevoLog = new Historial({
+            accion: "ACTUALIZAR STOCK",
+            detalles: `Se modificó el stock de "${producto.name}". Nuevo stock: ${producto.stock}`
+        });
+        await nuevoLog.save();
+
+        res.json({ mensaje: "Stock actualizado", stock: producto.stock });
+    } catch (error) {
+        res.status(500).json({ mensaje: "Error al actualizar el stock", error });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Servidor corriendo en puerto ${PORT}`);
