@@ -113,12 +113,19 @@
                 const contenedor = document.getElementById('lista-productos-admin');
                 contenedor.innerHTML = ''; // Limpiamos antes de cargar
                 
-                productos.forEach(producto => {
-                    // Aquí dibujamos cada producto con su botón rojo
+           productos.forEach(producto => {
                     contenedor.innerHTML += `
                         <div style="display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; padding: 10px; margin-bottom: 8px; border-radius: 5px; border: 1px solid #ddd;">
-                            <span style="font-size: 14px;"><strong>${producto.name}</strong> - $${producto.price}</span>
-                            <button onclick="borrarProducto('${producto._id}')" style="background: red; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">🗑️ Eliminar</button>
+                            <div style="display: flex; flex-direction: column;">
+                                <span style="font-size: 14px;"><strong>${producto.name}</strong> - $${producto.price}</span>
+                                <span style="font-size: 12px; color: #555; margin-top: 4px;">Stock disponible: <strong>${producto.stock}</strong></span>
+                            </div>
+                            
+                            <div style="display: flex; gap: 5px; align-items: center;">
+                                <button onclick="actualizarStock('${producto._id}', 'restar')" style="background: #ffc107; color: black; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: bold;">- 1</button>
+                                <button onclick="actualizarStock('${producto._id}', 'sumar')" style="background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: bold;">+ 1</button>
+                                <button onclick="borrarProducto('${producto._id}')" style="background: red; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-left: 10px;">🗑️ Eliminar</button>
+                            </div>
                         </div>
                     `;
                 });
