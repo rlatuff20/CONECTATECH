@@ -39,9 +39,9 @@
             <input type="text" id="nuevas-features" placeholder="Características (a,b,c)" required>
             <button type="submit" class="btn btn-save">➕ Guardar Producto</button>
         </form>
-            <hr style="margin: 20px 0; border: 1px solid #ccc;">
-             <h3>📦 Inventario Actual</h3>
-            <div id="lista-productos-admin" style="margin-bottom: 15px;"></div>
+        <hr style="margin: 20px 0; border: 1px solid #ccc;">
+        <h3>📦 Inventario Actual</h3>
+        <div id="lista-productos-admin" style="margin-bottom: 15px;"></div>
         
         <button onclick="cerrarSesion()" class="btn" style="margin-top:15px; width:100%">🔒 Cerrar Sesión</button>
     </div>
@@ -53,7 +53,7 @@
 
         document.getElementById('form-login').addEventListener('submit', (e) => {
             e.preventDefault();
-              fetch('/login', {// AQUI AGREGUÉ LA COMA
+            fetch('/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
@@ -81,7 +81,7 @@
                 features: document.getElementById('nuevas-features').value.split(',')
             };
 
-             fetch('/productos', {
+            fetch('/productos', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -105,15 +105,15 @@
             location.reload();
         }
 
-        // Función para cargar los productos en el panel con su botón de eliminar
+        // Función para cargar los productos en el panel
         function cargarProductosAdmin() {
             fetch('/productos')
             .then(res => res.json())
             .then(productos => {
                 const contenedor = document.getElementById('lista-productos-admin');
-                contenedor.innerHTML = ''; // Limpiamos antes de cargar
+                contenedor.innerHTML = ''; 
                 
-           productos.forEach(producto => {
+                productos.forEach(producto => {
                     contenedor.innerHTML += `
                         <div style="display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; padding: 10px; margin-bottom: 8px; border-radius: 5px; border: 1px solid #ddd;">
                             <div style="display: flex; flex-direction: column;">
@@ -144,11 +144,13 @@
                 .then(res => res.json())
                 .then(data => {
                     alert(data.mensaje);
-                    cargarProductosAdmin(); // Volvemos a cargar la lista para que desaparezca
+                    cargarProductosAdmin(); 
                 })
                 .catch(error => console.error('Error:', error));
             }
-          // Función para sumar o restar stock
+        } // <-- ¡AQUÍ ESTABA EL PROBLEMA! Ya lo cerré correctamente.
+
+        // Función para sumar o restar stock (Ahora sí está libre)
         function actualizarStock(idProducto, accion) {
             fetch(`/productos/${idProducto}/stock`, {
                 method: 'PUT',
@@ -161,14 +163,13 @@
             .then(res => res.json())
             .then(data => {
                 if(data.mensaje === "Stock actualizado") {
-                    cargarProductosAdmin(); // Recarga la lista automáticamente
+                    cargarProductosAdmin(); 
                 } else {
-                    alert(data.mensaje); // Te avisa si intentas restar cuando ya está en 0
+                    alert(data.mensaje); 
                 }
             })
             .catch(error => console.error('Error:', error));
         }
-     }   
     </script>
 </body>
 </html>
